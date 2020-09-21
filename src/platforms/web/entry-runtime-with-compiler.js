@@ -17,6 +17,7 @@ const idToTemplate = cached(id => {
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
   el?: string | Element,
+  // ssr 为 true
   hydrating?: boolean
 ): Component {
   el = el && query(el)
@@ -33,6 +34,7 @@ Vue.prototype.$mount = function (
   // resolve template/el and convert to render function
   if (!options.render) {
     let template = options.template
+    // 将 template 转换为 render 函数
     if (template) {
       if (typeof template === 'string') {
         if (template.charAt(0) === '#') {
