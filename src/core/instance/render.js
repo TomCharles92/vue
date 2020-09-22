@@ -68,6 +68,7 @@ export function renderMixin (Vue: Class<Component>) {
 
   Vue.prototype._render = function (): VNode {
     const vm: Component = this
+    // render 用户定义的或是 template 渲染的
     const { render, _parentVnode } = vm.$options
 
     if (_parentVnode) {
@@ -88,6 +89,8 @@ export function renderMixin (Vue: Class<Component>) {
       // separately from one another. Nested component's render fns are called
       // when parent component is patched.
       currentRenderingInstance = vm
+      // 调用 render 函数
+      // vm.$createElement 是 h 函数
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)

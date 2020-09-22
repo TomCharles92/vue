@@ -13,11 +13,14 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 let uid = 0
 
 export function initMixin (Vue: Class<Component>) {
+  // 给 Vue 实例增加 _init() 方法
+  // 合并 options / 初始化操作
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
     // a uid
     vm._uid = uid++
 
+    // 添加注释？
     let startTag, endTag
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -29,6 +32,7 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
+    // 如果是一个组件，实例化之后挂载为一个属性
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -49,13 +53,13 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
-    initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
+    initLifecycle(vm) // 初始化-生命周期
+    initEvents(vm) // 初始化-事件
+    initRender(vm) // 初始化-Render 函数
     callHook(vm, 'beforeCreate')
-    initInjections(vm) // resolve injections before data/props
-    initState(vm)
-    initProvide(vm) // resolve provide after data/props
+    initInjections(vm) // 初始化-inject resolve injections before data/props
+    initState(vm) // 这里应该是 data/props
+    initProvide(vm) // 初始化-provide resolve provide after data/props
     callHook(vm, 'created')
 
     /* istanbul ignore if */

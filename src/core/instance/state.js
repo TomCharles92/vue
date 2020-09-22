@@ -325,6 +325,8 @@ export function stateMixin (Vue: Class<Component>) {
   const propsDef = {}
   propsDef.get = function () { return this._props }
   if (process.env.NODE_ENV !== 'production') {
+    // 开发环境下，不允许给 $data 和 $props 赋值
+    // 生产环境可以？
     dataDef.set = function () {
       warn(
         'Avoid replacing instance root $data. ' +

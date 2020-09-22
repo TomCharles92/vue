@@ -54,10 +54,12 @@ export function eventsMixin (Vue: Class<Component>) {
   Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {
     const vm: Component = this
     if (Array.isArray(event)) {
+      // 如果是数组，则循环调用 vm.$on
       for (let i = 0, l = event.length; i < l; i++) {
         vm.$on(event[i], fn)
       }
     } else {
+      // vm._events[event] = [] 并添加 fn，意味着一个事件可以添加多个 fn
       (vm._events[event] || (vm._events[event] = [])).push(fn)
       // optimize hook:event cost by using a boolean flag marked at registration
       // instead of a hash lookup

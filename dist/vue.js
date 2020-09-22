@@ -3521,6 +3521,7 @@
 
     Vue.prototype._render = function () {
       var vm = this;
+      // render 用户定义的或是 template 渲染的
       var ref = vm.$options;
       var render = ref.render;
       var _parentVnode = ref._parentVnode;
@@ -3543,6 +3544,8 @@
         // separately from one another. Nested component's render fns are called
         // when parent component is patched.
         currentRenderingInstance = vm;
+        // 调用 render 函数
+        // vm.$createElement 是 h 函数
         vnode = render.call(vm._renderProxy, vm.$createElement);
       } catch (e) {
         handleError(e, vm, "render");
@@ -3799,10 +3802,12 @@
     Vue.prototype.$on = function (event, fn) {
       var vm = this;
       if (Array.isArray(event)) {
+        // 如果是数组，则循环调用 vm.$on
         for (var i = 0, l = event.length; i < l; i++) {
           vm.$on(event[i], fn);
         }
       } else {
+        // vm._events[event] = [] 并添加 fn，意味着一个事件可以添加多个 fn
         (vm._events[event] || (vm._events[event] = [])).push(fn);
         // optimize hook:event cost by using a boolean flag marked at registration
         // instead of a hash lookup
@@ -3927,19 +3932,21 @@
   }
 
   function lifecycleMixin (Vue) {
+    // _update 作用是把 VNode 渲染成真实的 DOM
+    // 首次渲染和数据更新会调用
     Vue.prototype._update = function (vnode, hydrating) {
       var vm = this;
       var prevEl = vm.$el;
-      var prevVnode = vm._vnode;
+      var prevVnode = vm._vnode; // 保存上一次的 Vnode
       var restoreActiveInstance = setActiveInstance(vm);
       vm._vnode = vnode;
       // Vue.prototype.__patch__ is injected in entry points
       // based on the rendering backend used.
       if (!prevVnode) {
-        // initial render
+        // 首次渲染 initial render
         vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */);
       } else {
-        // updates
+        // 数据变化 updates
         vm.$el = vm.__patch__(prevVnode, vnode);
       }
       restoreActiveInstance();
@@ -4907,6 +4914,8 @@
     var propsDef = {};
     propsDef.get = function () { return this._props };
     {
+      // 开发环境下，不允许给 $data 和 $props 赋值
+      // 生产环境可以？
       dataDef.set = function () {
         warn(
           'Avoid replacing instance root $data. ' +
@@ -4954,11 +4963,14 @@
   var uid$2 = 0;
 
   function initMixin (Vue) {
+    // 给 Vue 实例增加 _init() 方法
+    // 合并 options / 初始化操作
     Vue.prototype._init = function (options) {
       var vm = this;
       // a uid
       vm._uid = uid$2++;
 
+      // 添加注释？
       var startTag, endTag;
       /* istanbul ignore if */
       if ( config.performance && mark) {
@@ -4970,6 +4982,7 @@
       // a flag to avoid this being observed
       vm._isVue = true;
       // merge options
+      // 如果是一个组件，实例化之后挂载为一个属性
       if (options && options._isComponent) {
         // optimize internal component instantiation
         // since dynamic options merging is pretty slow, and none of the
@@ -4988,13 +5001,13 @@
       }
       // expose real self
       vm._self = vm;
-      initLifecycle(vm);
-      initEvents(vm);
-      initRender(vm);
+      initLifecycle(vm); // 初始化-生命周期
+      initEvents(vm); // 初始化-事件
+      initRender(vm); // 初始化-Render 函数
       callHook(vm, 'beforeCreate');
-      initInjections(vm); // resolve injections before data/props
-      initState(vm);
-      initProvide(vm); // resolve provide after data/props
+      initInjections(vm); // 初始化-inject resolve injections before data/props
+      initState(vm); // 这里应该是 data/props
+      initProvide(vm); // 初始化-provide resolve provide after data/props
       callHook(vm, 'created');
 
       /* istanbul ignore if */
