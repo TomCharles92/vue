@@ -30,18 +30,18 @@ export function initMixin (Vue: Class<Component>) {
       mark(startTag)
     }
 
-    // 标识是 Vue 实例不需要被 observe
+    // 如果是 Vue 的实例，不需要被 observe
     // a flag to avoid this being observed
     vm._isVue = true
-    // merge options
-    // 如果是一个组件，实例化之后挂载为一个属性
+    // 合并 options merge options
+    // 如果是一个组件，则将 组件的属性 + options
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
-      // 合并 options
+      // 如果不是组件，则合并 构造函数中的属性 + options
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},

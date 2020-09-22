@@ -42,6 +42,8 @@ export default class Watcher {
   getter: Function;
   value: any;
 
+  // Watcher 有三种：1.渲染 2.计算属性 3.侦听器
+  // 这里是渲染 Watcher
   constructor (
     vm: Component,
     expOrFn: string | Function,
@@ -103,6 +105,7 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
+      // 如果 getter 是 updateComponent，这里就是调用它的地方
       value = this.getter.call(vm, vm)
     } catch (e) {
       if (this.user) {

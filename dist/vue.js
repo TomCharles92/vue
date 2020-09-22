@@ -4069,11 +4069,14 @@
         measure(("vue " + name + " patch"), startTag, endTag);
       };
     } else {
+      // 定义了 updateComponent 函数，用于将 render 函数渲染成真实 DOM，并更新到页面
       updateComponent = function () {
+        // 执行时，先调用 _render()，再调用 _update()
         vm._update(vm._render(), hydrating);
       };
     }
 
+    // updateComponent 在 Watcher 中调用的
     // we set this to vm._watcher inside the watcher's constructor
     // since the watcher's initial patch may call $forceUpdate (e.g. inside child
     // component's mounted hook), which relies on vm._watcher being already defined
@@ -4482,6 +4485,7 @@
     var value;
     var vm = this.vm;
     try {
+      // 如果 getter 是 updateComponent，这里就是调用它的地方
       value = this.getter.call(vm, vm);
     } catch (e) {
       if (this.user) {
@@ -4992,18 +4996,18 @@
         mark(startTag);
       }
 
-      // 标识是 Vue 实例不需要被 observe
+      // 如果是 Vue 的实例，不需要被 observe
       // a flag to avoid this being observed
       vm._isVue = true;
-      // merge options
-      // 如果是一个组件，实例化之后挂载为一个属性
+      // 合并 options merge options
+      // 如果是一个组件，则将 组件的属性 + options
       if (options && options._isComponent) {
         // optimize internal component instantiation
         // since dynamic options merging is pretty slow, and none of the
         // internal component options needs special treatment.
         initInternalComponent(vm, options);
       } else {
-        // 合并 options
+        // 如果不是组件，则合并 构造函数中的属性 + options
         vm.$options = mergeOptions(
           resolveConstructorOptions(vm.constructor),
           options || {},
@@ -5486,6 +5490,7 @@
     initAssetRegisters(Vue);
   }
 
+  // 给 Vue 添加静态方法
   initGlobalAPI(Vue);
 
   Object.defineProperty(Vue.prototype, '$isServer', {
@@ -9105,6 +9110,7 @@
     el,
     hydrating
   ) {
+    // 重新获取 el
     el = el && inBrowser ? query(el) : undefined;
     return mountComponent(this, el, hydrating)
   };
@@ -11946,6 +11952,8 @@
   });
 
   var mount = Vue.prototype.$mount;
+  // 给 $mount 增加功能：
+  // 将 template 编译为 render 函数
   Vue.prototype.$mount = function (
     el,
     // ssr 为 true
@@ -11995,6 +12003,7 @@
           mark('compile');
         }
 
+        // 把 template 编译成 render 函数
         var ref = compileToFunctions(template, {
           outputSourceRange: "development" !== 'production',
           shouldDecodeNewlines: shouldDecodeNewlines,
@@ -12025,12 +12034,14 @@
     if (el.outerHTML) {
       return el.outerHTML
     } else {
+      // 可能是注释节点或文本节点
       var container = document.createElement('div');
       container.appendChild(el.cloneNode(true));
       return container.innerHTML
     }
   }
 
+  // 把模板转换成 render 函数
   Vue.compile = compileToFunctions;
 
   return Vue;

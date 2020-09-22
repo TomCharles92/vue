@@ -189,11 +189,14 @@ export function mountComponent (
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
+    // 定义了 updateComponent 函数，用于将 render 函数渲染成真实 DOM，并更新到页面
     updateComponent = () => {
+      // 执行时，先调用 _render()，再调用 _update()
       vm._update(vm._render(), hydrating)
     }
   }
 
+  // updateComponent 在 Watcher 中调用的
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined

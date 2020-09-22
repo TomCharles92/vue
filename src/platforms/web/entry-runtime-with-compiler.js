@@ -15,6 +15,8 @@ const idToTemplate = cached(id => {
 })
 
 const mount = Vue.prototype.$mount
+// 给 $mount 增加功能：
+// 将 template 编译为 render 函数
 Vue.prototype.$mount = function (
   el?: string | Element,
   // ssr 为 true
@@ -64,6 +66,7 @@ Vue.prototype.$mount = function (
         mark('compile')
       }
 
+      // 把 template 编译成 render 函数
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,
@@ -92,12 +95,14 @@ function getOuterHTML (el: Element): string {
   if (el.outerHTML) {
     return el.outerHTML
   } else {
+    // 可能是注释节点或文本节点
     const container = document.createElement('div')
     container.appendChild(el.cloneNode(true))
     return container.innerHTML
   }
 }
 
+// 把模板转换成 render 函数
 Vue.compile = compileToFunctions
 
 export default Vue

@@ -7,15 +7,17 @@
   <script src="../../dist/vue.js"></script>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <div><h1>Hello World</h1></div>
+    {{ msg }}
+  </div>
 
   <script>
     const vm = new Vue({ 
-      el: '#app', 
-      template: '<h3>Hello template</h3>', 
-      render (h) { 
-        return h('h4', 'Hello render') 
-      } 
+      el: '#app',
+      data: {
+        msg: 'template'
+      }
     })
   </script>
 </body>
