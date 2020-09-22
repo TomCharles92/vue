@@ -48,9 +48,12 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
+  // 将 props 转换成响应式，并注入到 vm._props
   if (opts.props) initProps(vm, opts.props)
+  // 将所有方法注入到 vm
   if (opts.methods) initMethods(vm, opts.methods)
   if (opts.data) {
+    // 把 data 的属性注入到 vm，并把 data 处理为响应式对象
     initData(vm)
   } else {
     observe(vm._data = {}, true /* asRootData */)
@@ -111,6 +114,8 @@ function initProps (vm: Component, propsOptions: Object) {
 
 function initData (vm: Component) {
   let data = vm.$options.data
+  // 取出 data
+  // 因为组件中的 data 是一个函数，所有用 getData 处理
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
@@ -144,9 +149,11 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      // 把 data 中的 key 注入到 vm
       proxy(vm, `_data`, key)
     }
   }
+  // 把 data 处理为响应式对象
   // observe data
   observe(data, true /* asRootData */)
 }

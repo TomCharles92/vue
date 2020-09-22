@@ -21,6 +21,7 @@ export function initMixin (Vue: Class<Component>) {
     vm._uid = uid++
 
     // 添加注释？
+    // 开发环境下的性能检测
     let startTag, endTag
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -29,6 +30,7 @@ export function initMixin (Vue: Class<Component>) {
       mark(startTag)
     }
 
+    // 标识是 Vue 实例不需要被 observe
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
@@ -39,27 +41,39 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // 合并 options
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
         vm
       )
     }
+    // 设置代理对象
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
+      // 开发环境可能会用 Proxy 来代理
       initProxy(vm)
     } else {
       vm._renderProxy = vm
     }
     // expose real self
     vm._self = vm
-    initLifecycle(vm) // 初始化-生命周期
-    initEvents(vm) // 初始化-事件
-    initRender(vm) // 初始化-Render 函数
+    // 初始化 vm 的生命周期
+    // $parent, $root, $children, $refs, 
+    initLifecycle(vm)
+    // 初始化-事件监听
+    // 将父组件上附加的事件绑定到当前实例
+    initEvents(vm)
+    // 初始化-render 函数
+    // $slots, $scopedSlots, _c, $createElement, $attrs, $listeners
+    initRender(vm)
     callHook(vm, 'beforeCreate')
-    initInjections(vm) // 初始化-inject resolve injections before data/props
-    initState(vm) // 这里应该是 data/props
-    initProvide(vm) // 初始化-provide resolve provide after data/props
+    // 初始化-inject
+    initInjections(vm)
+    // 初始化 props, methods, data/_data, computed, watch
+    initState(vm)
+    // 初始化-provide
+    initProvide(vm)
     callHook(vm, 'created')
 
     /* istanbul ignore if */

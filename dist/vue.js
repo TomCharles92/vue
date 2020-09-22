@@ -3489,9 +3489,11 @@
     // so that we get proper render context inside it.
     // args order: tag, data, children, normalizationType, alwaysNormalize
     // internal version is used by render functions compiled from templates
+    // template => render，调用的 h 函数，用于渲染
     vm._c = function (a, b, c, d) { return createElement(vm, a, b, c, d, false); };
     // normalization is always applied for the public version, used in
     // user-written render functions.
+    // render 函数中的 h 函数，用于渲染。与 _c 比，最后一个参数不同
     vm.$createElement = function (a, b, c, d) { return createElement(vm, a, b, c, d, true); };
 
     // $attrs & $listeners are exposed for easier HOC creation.
@@ -3758,11 +3760,13 @@
   /*  */
 
   function initEvents (vm) {
+    // 用于存储事件
     vm._events = Object.create(null);
     vm._hasHookEvent = false;
     // init parent attached events
     var listeners = vm.$options._parentListeners;
     if (listeners) {
+      // 将父组件上附加的事件绑定到当前实例
       updateComponentListeners(vm, listeners);
     }
   }
@@ -3908,6 +3912,7 @@
   function initLifecycle (vm) {
     var options = vm.$options;
 
+    // 把 vm 添加到父组件中
     // locate first non-abstract parent
     var parent = options.parent;
     if (parent && !options.abstract) {
@@ -4637,9 +4642,12 @@
   function initState (vm) {
     vm._watchers = [];
     var opts = vm.$options;
+    // 将 props 转换成响应式，并注入到 vm._props
     if (opts.props) { initProps(vm, opts.props); }
+    // 将所有方法注入到 vm
     if (opts.methods) { initMethods(vm, opts.methods); }
     if (opts.data) {
+      // 把 data 的属性注入到 vm，并把 data 处理为响应式对象
       initData(vm);
     } else {
       observe(vm._data = {}, true /* asRootData */);
@@ -4700,6 +4708,8 @@
 
   function initData (vm) {
     var data = vm.$options.data;
+    // 取出 data
+    // 因为组件中的 data 是一个函数，所有用 getData 处理
     data = vm._data = typeof data === 'function'
       ? getData(data, vm)
       : data || {};
@@ -4733,9 +4743,11 @@
           vm
         );
       } else if (!isReserved(key)) {
+        // 把 data 中的 key 注入到 vm
         proxy(vm, "_data", key);
       }
     }
+    // 把 data 处理为响应式对象
     // observe data
     observe(data, true /* asRootData */);
   }
@@ -4971,6 +4983,7 @@
       vm._uid = uid$2++;
 
       // 添加注释？
+      // 开发环境下的性能检测
       var startTag, endTag;
       /* istanbul ignore if */
       if ( config.performance && mark) {
@@ -4979,6 +4992,7 @@
         mark(startTag);
       }
 
+      // 标识是 Vue 实例不需要被 observe
       // a flag to avoid this being observed
       vm._isVue = true;
       // merge options
@@ -4989,25 +5003,37 @@
         // internal component options needs special treatment.
         initInternalComponent(vm, options);
       } else {
+        // 合并 options
         vm.$options = mergeOptions(
           resolveConstructorOptions(vm.constructor),
           options || {},
           vm
         );
       }
+      // 设置代理对象
       /* istanbul ignore else */
       {
+        // 开发环境可能会用 Proxy 来代理
         initProxy(vm);
       }
       // expose real self
       vm._self = vm;
-      initLifecycle(vm); // 初始化-生命周期
-      initEvents(vm); // 初始化-事件
-      initRender(vm); // 初始化-Render 函数
+      // 初始化 vm 的生命周期
+      // $parent, $root, $children, $refs, 
+      initLifecycle(vm);
+      // 初始化-事件监听
+      // 将父组件上附加的事件绑定到当前实例
+      initEvents(vm);
+      // 初始化-render 函数
+      // $slots, $scopedSlots, _c, $createElement, $attrs, $listeners
+      initRender(vm);
       callHook(vm, 'beforeCreate');
-      initInjections(vm); // 初始化-inject resolve injections before data/props
-      initState(vm); // 这里应该是 data/props
-      initProvide(vm); // 初始化-provide resolve provide after data/props
+      // 初始化-inject
+      initInjections(vm);
+      // 初始化 props, methods, data/_data, computed, watch
+      initState(vm);
+      // 初始化-provide
+      initProvide(vm);
       callHook(vm, 'created');
 
       /* istanbul ignore if */

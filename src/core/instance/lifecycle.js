@@ -32,6 +32,7 @@ export function setActiveInstance(vm: Component) {
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
+  // 把 vm 添加到父组件中
   // locate first non-abstract parent
   let parent = options.parent
   if (parent && !options.abstract) {
