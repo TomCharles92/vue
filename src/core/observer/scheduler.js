@@ -70,9 +70,14 @@ if (inBrowser && !isIE) {
  */
 function flushSchedulerQueue () {
   currentFlushTimestamp = getNow()
+  // 表示当前正在处理 watcher queue
   flushing = true
   let watcher, id
 
+  // 在执行 queue 之前，现做排序。原因是：
+  // 1. 组件更新是先父组件再子组件（因为父组件先创建）
+  // 2. 组件的用户 watcher 比渲染 watcher 更早执行（因为用户 watcher 更早创建）
+  // 3. 在父组件的 watcher 执行期间，如果子组件被销毁了，那么它的 watcher 应该被跳过
   // Sort queue before flush.
   // This ensures that:
   // 1. Components are updated from parent to child. (because parent is always
@@ -92,6 +97,7 @@ function flushSchedulerQueue () {
     }
     id = watcher.id
     has[id] = null
+    // 核心就是调用 run()
     watcher.run()
     // in dev build, check and stop circular updates.
     if (process.env.NODE_ENV !== 'production' && has[id] != null) {
@@ -165,20 +171,28 @@ export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
   if (has[id] == null) {
     has[id] = true
+    /**
+     * 这块代码是将当前的 watcher 放到 queue 中合适的地方
+     */
+    // flushing: true 表示当前队列正在被处理
     if (!flushing) {
       queue.push(watcher)
     } else {
+      // queue 中 watcher 的 id 是从小到大排序的
+      // index 表示当前队列处理到了第几个元素
+      // i 代表的 watcher 还没有处理到 && 
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.
       let i = queue.length - 1
       while (i > index && queue[i].id > watcher.id) {
         i--
       }
+      // 将 watcher 放到一个合适的地方
       queue.splice(i + 1, 0, watcher)
     }
     // queue the flush
     if (!waiting) {
-      waiting = true
+      waiting = true // 表示正在被执行
 
       if (process.env.NODE_ENV !== 'production' && !config.async) {
         flushSchedulerQueue()

@@ -43,7 +43,7 @@ export default class Watcher {
   value: any;
 
   // Watcher 有三种：1.渲染 2.计算属性 3.侦听器
-  // 这里是渲染 Watcher
+  // 侦听器 watcher 会传入 cb，比较新旧 value 的回调
   constructor (
     vm: Component,
     expOrFn: string | Function,
@@ -52,9 +52,11 @@ export default class Watcher {
     isRenderWatcher?: boolean
   ) {
     this.vm = vm
+    // 如果是渲染 watcher，保存在 vm._watcher
     if (isRenderWatcher) {
       vm._watcher = this
     }
+    // 这里保存三种 watcher
     vm._watchers.push(this)
     // options
     if (options) {
@@ -81,6 +83,8 @@ export default class Watcher {
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
+      // expOrFn 是字符串时，例如 watch{ 'person.name': function() {} }
+      // parsePath(expOrFn) 返回一个函数，用于获取 person.name 的值
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop
@@ -101,6 +105,7 @@ export default class Watcher {
    * Evaluate the getter, and re-collect dependencies.
    */
   get () {
+    // 将当前 watcher 对象推入栈中，且记录在 Dep.target 上
     pushTarget(this)
     let value
     const vm = this.vm
@@ -134,6 +139,7 @@ export default class Watcher {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
+        // 在 dep 上添加 watcher 
         dep.addSub(this)
       }
     }
@@ -180,7 +186,9 @@ export default class Watcher {
    * Will be called by the scheduler.
    */
   run () {
+    // 当前 watcher 是存活的
     if (this.active) {
+      // 如果是渲染组件会去更新视图，value 是 undefined
       const value = this.get()
       if (
         value !== this.value ||
@@ -190,9 +198,11 @@ export default class Watcher {
         isObject(value) ||
         this.deep
       ) {
+        // 设置新值 newValue，然后执行回调
         // set new value
         const oldValue = this.value
         this.value = value
+        // 如果是用户 watcher，给 cb 加一个 try...catch
         if (this.user) {
           try {
             this.cb.call(this.vm, value, oldValue)

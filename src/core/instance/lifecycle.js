@@ -192,15 +192,20 @@ export function mountComponent (
     // 定义了 updateComponent 函数，用于将 render 函数渲染成真实 DOM，并更新到页面
     updateComponent = () => {
       // 执行时，先调用 _render()，再调用 _update()
+      // _render() 是用户传入的 render 或者 template 转换的 render，作用是得到 VNode
+      // _update() 比较两个 VNode，更新差异，再渲染到页面上
       vm._update(vm._render(), hydrating)
     }
   }
 
   // updateComponent 在 Watcher 中调用的
+  // 第三个参数 noop 是一个空函数，因为渲染 watcher 用不到
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
   new Watcher(vm, updateComponent, noop, {
+    // 触发钩子函数 beforeUpdate
+    // true 表示这是一个渲染 watcher
     before () {
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate')

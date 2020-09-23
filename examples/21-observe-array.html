@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>observe-array</title>
+  <script src="../../dist/vue.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h5>array: </h5>
+    <ul>
+      <li v-for="item in array" :key="item">
+        {{ item }}
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const vm = new Vue({
+      el: '#app',
+      data: {
+        array: [1, 2, 3, 4]
+      }
+    });
+
+    // vm.array.push(100)
+    // vm.array[0] = 100
+    // vm.array.length = 0
+    // 后面两个操作不会触发视图更新，可以使用 splice 方法来代替
+  </script>
+</body>
+</html>

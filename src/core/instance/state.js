@@ -115,7 +115,7 @@ function initProps (vm: Component, propsOptions: Object) {
 function initData (vm: Component) {
   let data = vm.$options.data
   // 取出 data
-  // 因为组件中的 data 是一个函数，所有用 getData 处理
+  // 因为组件中的 data 是一个函数，所以用 getData 处理
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
@@ -149,7 +149,7 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
-      // 把 data 中的 key 注入到 vm
+      // 将 data 代理到 vm._data
       proxy(vm, `_data`, key)
     }
   }
