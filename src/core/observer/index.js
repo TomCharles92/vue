@@ -246,6 +246,8 @@ export function defineReactive (
   })
 }
 
+// 给对象设置一个属性
+// 新增属性，如果属性不存在，则发布通知
 /**
  * Set a property on an object. Adds the new property and
  * triggers change notification if the property doesn't
@@ -257,8 +259,10 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
   ) {
     warn(`Cannot set reactive property on undefined, null, or primitive value: ${(target: any)}`)
   }
+  // 给数组新增元素
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     target.length = Math.max(target.length, key)
+    // 在 splice 中会调用 ob.dep.notify()
     target.splice(key, 1, val)
     return val
   }
@@ -274,11 +278,14 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     )
     return val
   }
+  // ob 不存在，target 不是响应式对象，不再做进一步处理
   if (!ob) {
     target[key] = val
     return val
   }
+  // 为对象定义响应式属性
   defineReactive(ob.value, key, val)
+  // 发布通知
   ob.dep.notify()
   return val
 }

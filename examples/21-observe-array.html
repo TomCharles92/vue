@@ -14,13 +14,19 @@
         {{ item }}
       </li>
     </ul>
+    <h5>person: </h5>
+    <div>name: {{person.name}}</div>
+    <div>age: {{person.age}}</div>
   </div>
 
   <script>
     const vm = new Vue({
       el: '#app',
       data: {
-        array: [1, 2, 3, 4]
+        array: [1, 2, 3, 4],
+        person: {
+          name: '张三'
+        }
       }
     });
 

@@ -1137,6 +1137,8 @@
     });
   }
 
+  // 给对象设置一个属性
+  // 新增属性，如果属性不存在，则发布通知
   /**
    * Set a property on an object. Adds the new property and
    * triggers change notification if the property doesn't
@@ -1148,8 +1150,10 @@
     ) {
       warn(("Cannot set reactive property on undefined, null, or primitive value: " + ((target))));
     }
+    // 给数组新增元素
     if (Array.isArray(target) && isValidArrayIndex(key)) {
       target.length = Math.max(target.length, key);
+      // 在 splice 中会调用 ob.dep.notify()
       target.splice(key, 1, val);
       return val
     }
@@ -1165,11 +1169,14 @@
       );
       return val
     }
+    // ob 不存在，target 不是响应式对象，不再做进一步处理
     if (!ob) {
       target[key] = val;
       return val
     }
+    // 为对象定义响应式属性
     defineReactive(ob.value, key, val);
+    // 发布通知
     ob.dep.notify();
     return val
   }
@@ -4560,6 +4567,7 @@
         );
       }
     }
+    // this.lazy 计算属性才会有的选项，因为它的 get 方法是在 render() 中调用的
     this.value = this.lazy
       ? undefined
       : this.get();
@@ -5005,6 +5013,7 @@
     handler,
     options
   ) {
+    // 是否是原生对象
     if (isPlainObject(handler)) {
       options = handler;
       handler = handler.handler;
@@ -5049,11 +5058,15 @@
       options
     ) {
       var vm = this;
+      // 如果 cb 是个对象
+      // 去取得回调函数
       if (isPlainObject(cb)) {
         return createWatcher(vm, expOrFn, cb, options)
       }
       options = options || {};
+      // 标记为用户 watcher
       options.user = true;
+      // 创建用户 watcher 对象
       var watcher = new Watcher(vm, expOrFn, cb, options);
       if (options.immediate) {
         try {

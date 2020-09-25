@@ -96,6 +96,7 @@ export default class Watcher {
         )
       }
     }
+    // this.lazy 计算属性才会有的选项，因为它的 get 方法是在 render() 中调用的
     this.value = this.lazy
       ? undefined
       : this.get()

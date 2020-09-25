@@ -313,6 +313,7 @@ function createWatcher (
   handler: any,
   options?: Object
 ) {
+  // 是否是原生对象
   if (isPlainObject(handler)) {
     options = handler
     handler = handler.handler
@@ -357,11 +358,15 @@ export function stateMixin (Vue: Class<Component>) {
     options?: Object
   ): Function {
     const vm: Component = this
+    // 如果 cb 是个对象
+    // 去取得回调函数
     if (isPlainObject(cb)) {
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
+    // 标记为用户 watcher
     options.user = true
+    // 创建用户 watcher 对象
     const watcher = new Watcher(vm, expOrFn, cb, options)
     if (options.immediate) {
       try {
