@@ -1981,6 +1981,7 @@
   var callbacks = [];
   var pending = false;
 
+  // 遍历 callbacks，并执行里面的 cb
   function flushCallbacks () {
     pending = false;
     var copies = callbacks.slice(0);
@@ -2001,6 +2002,9 @@
   // where microtasks have too high a priority and fire in between supposedly
   // sequential events (e.g. #4521, #6690, which have workarounds)
   // or even between bubbling of the same event (#6566).
+
+  // 看支持情况，依次降级
+  // Promise => MutationObserver => setImmediate => setTimeout
   var timerFunc;
 
   // The nextTick behavior leverages the microtask queue, which can be accessed
@@ -2019,10 +2023,12 @@
       // microtask queue but the queue isn't being flushed, until the browser
       // needs to do some other work, e.g. handle a timer. Therefore we can
       // "force" the microtask queue to be flushed by adding an empty timer.
+      // 针对 IOS 系统不支持 Promise，改为 setTimeout
       if (isIOS) { setTimeout(noop); }
     };
     isUsingMicroTask = true;
   } else if (!isIE && typeof MutationObserver !== 'undefined' && (
+    // MutationObserver 会监听 DOM 对象的变化，DOM 对象改变它会执行一个回调函数
     isNative(MutationObserver) ||
     // PhantomJS and iOS 7.x
     MutationObserver.toString() === '[object MutationObserverConstructor]'
@@ -2042,6 +2048,7 @@
     };
     isUsingMicroTask = true;
   } else if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
+    // 以上都不支持，使用 setImmediate，它是在 IE 和 NodeJS 环境下的
     // Fallback to setImmediate.
     // Technically it leverages the (macro) task queue,
     // but it is still a better choice than setTimeout.
@@ -2057,6 +2064,7 @@
 
   function nextTick (cb, ctx) {
     var _resolve;
+    // 将 回调函数cb + 异常处理 存入数组 callbacks 中
     callbacks.push(function () {
       if (cb) {
         try {
@@ -2072,6 +2080,7 @@
       pending = true;
       timerFunc();
     }
+    // return 一个 promise，并将 resolve 方法赋值给 _resolve
     // $flow-disable-line
     if (!cb && typeof Promise !== 'undefined') {
       return new Promise(function (resolve) {
